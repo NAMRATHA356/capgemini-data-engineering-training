@@ -1,0 +1,22 @@
+Phase 1 – SQL to PySpark
+
+Learned:
+
+Basic PySpark DataFrame operations
+Mapping SQL queries to PySpark syntax
+Using select, filter, and groupBy
+Understanding how data is stored and processed in DataFrames
+Writing simple transformations and actions (show, count)
+Difference between SQL queries and PySpark DataFrame API
+How to load and explore data using .show() and .printSchema()
+Applying conditions using filter() and logical operators
+
+Challenges:
+
+Understanding how groupBy works compared to SQL
+Getting comfortable with syntax differences between SQL and PySpark
+Remembering function-based syntax instead of SQL keywords
+Handling errors due to incorrect column references
+Confusion between DataFrame operations and SQL queries
+Writing conditions using & and | instead of AND / OR
+Understanding how transformations are executed in PySpark
