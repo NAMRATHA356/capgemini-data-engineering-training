@@ -1,0 +1,17 @@
+#What I Did
+Extracted data from CSV, JSON, and Parquet files
+Cleaned and handled missing/invalid data
+Performed joins and aggregations for analysis
+Applied window functions to derive advanced insights
+Generated final reporting datasets
+#Technologies & Methods Used
+PySpark DataFrame API
+Functions:
+read(), show(), printSchema(), dropna(), filter(), join(),
+groupBy(), agg(), sum(), count(), row_number(), write()
+#Learnings
+Built a complete ETL pipeline from scratch
+Understood how to transform SQL logic into PySpark
+Learned handling of missing data and data validation
+Gained experience with aggregations and window functions
+Improved understanding of scalable data processin

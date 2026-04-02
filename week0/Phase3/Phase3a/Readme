@@ -1,0 +1,21 @@
+Phase 3A – Data Cleaning
+Overview
+
+Worked with messy data using PySpark to understand the importance of data cleaning in real-world scenarios.
+
+Work Done
+Identified data issues such as null values, duplicates, and invalid entries
+Cleaned data using:
+dropna() for removing null records
+fillna() for handling missing values
+filter() for removing invalid data
+dropDuplicates() for eliminating duplicate rows
+Validated data by checking row counts before and after cleaning
+Performed aggregation to calculate customers per city
+Learnings
+Real-world data is often messy and inconsistent
+Data cleaning is a critical step before analysis
+Poor quality data leads to incorrect results and insights
+Reflection
+
+Cleaning data is essential to ensure accurate analysis and better decision-making.
