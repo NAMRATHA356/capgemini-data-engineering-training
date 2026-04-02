@@ -1,0 +1,66 @@
+Phase 4 – Sales Data Pipeline & Customer Segmentation using PySpark
+Objective
+
+In this phase, the goal is to build an end-to-end PySpark pipeline that cleans raw sales and customer data, aggregates insights such as daily sales, city-wise revenue, top customers, repeat customers, and customer segmentation, and generates a final reporting table.
+
+Problem Summary
+
+We were given two datasets: orders and customers.
+The tasks were to:
+
+Clean raw data and remove duplicates or invalid values
+Join datasets to combine customer and order information
+Perform aggregations to extract business insights
+Segment customers based on their total spend
+Generate a final report and save it safely
+Approach
+Loaded datasets into PySpark DataFrames
+Performed basic data cleaning:
+Removed rows with null values for customer_id or amount
+Dropped duplicate rows
+Filtered out invalid amounts (e.g., negative values)
+Joined orders and customers using customer_id
+Applied transformations:
+groupBy and agg for metrics like total sales, revenue, and total spend
+filter to identify repeat customers
+Performed customer segmentation using conditional logic
+Built the final reporting table including customer info, total spend, order count, and segment
+Saved the final report as a CSV to /tmp/output_report
+Key Transformations Used
+join() → Combine orders and customer datasets
+groupBy() → Aggregate data by date, city, or customer
+agg() → Calculate metrics like sum of sales, total spend, order counts
+filter() → Remove invalid or unwanted records
+when() → Conditional logic for customer segmentation
+approxQuantile() → Quantile-based segmentation
+Window functions → Window-based ranking for advanced insights
+Output / Results
+
+The following outputs were generated:
+
+Daily sales totals
+City-wise revenue totals
+Top 5 customers by total spend
+Repeat customers (more than 1 order)
+Customer segmentation (Gold, Silver, Bronze)
+Final reporting table with customer_name, city, total_spend, order_count, and segment
+
+Screenshots of outputs are available in the outputs/ folder.
+
+Data Engineering Considerations
+Handled null values to avoid incorrect aggregations
+Ensured joins do not create duplicate records
+Verified outputs using sample checks before saving final reports
+Challenges Faced
+Handling duplicate or missing data while joining datasets
+Defining proper thresholds for customer segmentation
+Implementing quantile-based segmentation and window functions
+Learnings
+How to perform joins and aggregations in PySpark
+Importance of cleaning data before performing transformations
+Techniques for customer segmentation and bucketing
+Generating final business reports efficiently using PySpark
+Files in this Folder
+sales_pipeline.py → Full PySpark implementation
+phase4_problem_statement.pdf → Problem description
+outputs/ → Output CSV files and screenshots

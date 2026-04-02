@@ -1,0 +1,65 @@
+Phase 4A – Bucketing & Segmentation in PySpark
+Objective
+
+In this phase, the goal is to perform customer segmentation by converting continuous values (like total spend) into categorical buckets using PySpark. This helps in simplifying analysis and supports business decision-making.
+
+Problem Summary
+
+We were given datasets such as orders and customers.
+The task was to:
+
+Merge orders with customer data
+Calculate customer spending metrics
+Segment customers into categories (Gold, Silver, Bronze)
+Explore different segmentation methods (conditional logic, quantiles, window ranking)
+Approach
+Loaded datasets into PySpark DataFrames
+Performed basic data cleaning:
+Removed null values
+Dropped duplicates
+Filtered invalid amounts
+Joined orders with customers using customer_id
+Calculated customer-level metrics:
+Total spend
+Order counts
+Applied segmentation methods:
+Conditional logic (fixed thresholds)
+Optional: Quantile-based segmentation
+Optional: Window-based ranking
+Prepared a final report combining customer info, spending, order count, and segment
+Key Transformations Used
+join() → to combine tables
+groupBy() → for aggregation
+agg() → to calculate metrics like sum and count
+filter() → to remove invalid data
+when() → to create segmentation buckets
+approxQuantile() → to calculate percentile-based segmentation
+percent_rank() → for ranking customers using a window function
+Output / Results
+
+The following outputs were generated:
+
+Daily sales by date
+Revenue by city
+Top 5 customers by total spend
+Repeat customers
+Customer segmentation (Gold/Silver/Bronze)
+Final reporting table combining customer info, spend, order count, and segment
+Data Engineering Considerations
+Handled null values to ensure correct calculations
+Removed duplicates to prevent inflated metrics
+Renamed columns to avoid ambiguity in joins
+Saved outputs safely to /tmp/output_report to prevent permission issues
+Challenges Faced
+Avoiding ambiguous column references after joins
+Deciding thresholds for segmentation
+Comparing different segmentation methods
+Learnings
+How to perform bucketing/segmentation using conditional logic, quantiles, and window functions
+Importance of column renaming to prevent ambiguous references
+How to combine multiple metrics into a single reporting table
+Understanding practical use of segmentation in business scenarios
+Files in this Folder
+solution.py → PySpark implementation
+phase4A_problem_statement.pdf → Problem description
+outputs/ → Output CSV files (daily sales, city revenue, top customers, segmented report)
