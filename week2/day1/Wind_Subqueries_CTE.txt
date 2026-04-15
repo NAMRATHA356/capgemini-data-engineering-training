@@ -1,0 +1,473 @@
+Analyse the month over month performance by finding the percentage change
+In sales between the current and previous months
+
+Query: Select ordered, orderdate, sales from Sales.orders
+
+To extract the month from the orderdate we are going to use month() function 
+
+Query: Select ordered, orderdate, month(orderdate) as ordermonth, sales from Sales.orders
+
+Now we need to find the total salesof each month so we can write below query
+Query: Select month(orderdate) as ordermonth, sum(sales) as currentmonthSales from Sales.orders group by month(orderdate)
+
+Now we got the current month sales so now we need to get the previous month sales so write below query
+Query: Select month(orderdate) as ordermonth, sum(sales) as currentmonthSales, lag(sum(sales)) over(order by month(orderdate)) as previousmonthSales from Sales.orders group by month(orderdate)
+
+To find the sales between the current month and previous month then we 
+Query: Select *,
+currentmonthSales – previousmonthSales as MOM_Change from 
+(Select month(orderdate) as ordermonth, sum(sales) as currentmonthSales, lag(sum(sales)) over(order by month(orderdate)) as previousmonthSales from Sales.orders group by month(orderdate) )t
+
+To find the percentage change then write like below
+Select *,
+currentmonthSales – previousmonthSales as MOM_Change,
+round(cast((currentmonthSales - previousmonthSales) as float)/previousmonthSales*100,1) as Mom_Perc
+ from 
+(Select month(orderdate) as ordermonth, sum(sales) as currentmonthSales, lag(sum(sales)) over(order by month(orderdate)) as previousmonthSales from Sales.orders group by month(orderdate) )t
+
+
+Analyze customer loyality by ranking customers based on the average number of orders between orders
+
+select ordered, customerid, orderdate from sales.orders order by customerid, orderdate
+
+1)Now lets find the difference between their orders 
+	select 
+	ordered, 
+	customerid, 
+	orderdate as currentorder
+	lead(orderdate) over(partition by customerid order by orderdate) NextOrder
+	from sales.orders order by customerid, orderdate
+2)To get the no of days between the order then we need to use datediff function
+	select 
+	ordered, 
+	customerid, 
+	orderdate as currentorder
+	lead(orderdate) over(partition by customerid order by orderdate) NextOrder,
+	datefiff(day, orderdate, lead(orderdate) over(partition by customerid order by orderdate)) Daysuntilnxtorder
+	from sales.orders order by customerid, orderdate
+
+3)To get the avg days then we need to write below query
+	select 
+	customerid,
+	avg(Daysuntilnxtorder) avgdays
+	rank() over(order by avg(Daysuntilnxtorder)) RankAvg
+	from (
+	select 
+	ordered, 
+	customerid, 
+	orderdate as currentorder
+	lead(orderdate) over(partition by customerid order by orderdate) NextOrder,
+	datefiff(day, orderdate, lead(orderdate) over(partition by customerid order by orderdate)) Daysuntilnxtorder
+	from sales.orders order by customerid, orderdate
+	)t
+	group by  customerid
+4)To remove the null values 
+	select 
+	customerid,
+	avg(Daysuntilnxtorder) avgdays
+	rank() over(order by coalesce(avg(Daysuntilnxtorder),99999) RankAvg
+	from (
+	select 
+	ordered, 
+	customerid, 
+	orderdate as currentorder
+	lead(orderdate) over(partition by customerid order by orderdate) NextOrder,
+	datefiff(day, orderdate, lead(orderdate) over(partition by customerid order by orderdate)) Daysuntilnxtorder
+	from sales.orders order by customerid, orderdate
+	)t
+	group by  customerid
+
+Subqueries in SQL:
+==================
+A query inside another query
+
+Why subqueries
+When to use subqueries
+
+Subquery
+Categories
+
+1)Non corelated subquery
+2)Corelated subquery
+
+1)Non corelated subquery
+a)Scalar subquery
+b)Row subquery
+c)Table subquery
+
+Where this subquery can be used 
+We can use it in 
+1)select 2)from 3)join 4)where
+
+1)Scalar subquery:
+Ex: select avg(sales) from sales.order
+
+2)Row subquery:
+Ex: select customerid from sales.orders
+
+3)Tabl subquery
+Ex: Select * from sales.orders
+slect ordered, orderdate from sales.orders
+
+Subquery in from clause
+=======================
+syntax
+Ex: Find the products that have a price higher than the average price of all products
+
+Query: First find the avg price of all products
+	select 
+	productid,
+	price,
+	sales
+	from sales.products
+
+2)	select 
+	productid,
+	price,
+	avg(price) over() avgprice
+	sales
+	from sales.products
+
+	select * 
+	from 
+	( select 
+	productid,
+	price,
+	avg(price) over() avgprice
+	sales
+	from sales.products)t 
+	where price > avgprice
+
+2)Rank customer based on total amount of sales
+	
+	select 
+	customerid,
+	sales
+	from sales.orders
+
+	select 
+	customerid,
+	sum(sales) as totalsales
+	from sales.orders
+	group by customerid
+
+	select *,
+	rank() over(order by totalsales desc) CustomerRank
+	from (
+	select 
+	customerid,
+	sum(sales) as totalsales
+	from sales.orders
+	group by customerid)t
+
+Subquery in Select query
+=======================
+Used to aggregate data side by side with th main query's data allowing for direct comparison
+
+Q)Show the productid's product names, prices and the total no of orders
+
+	select 
+	productid,
+	productname,
+	price 
+	from sales.products;
+	select 
+	count(*) as totalorders
+	from sales.orders;
+        Execute the above queries
+
+	select 
+	productid,
+	productname,
+	price,
+	(select count(*) from sales.orders) as TotalOrders  
+	from sales.products;
+	
+
+Subquery in Join Clause
+=======================
+Used to prepare the data (filtering/Aggregation) before joining it with other tables
+
+Q) show all customers details and find the total orders of each customer
+
+	select *
+	from sales.customers;
+	select 
+	ordered,
+	customerid,
+	from sales.orders;
+
+	select *
+	from sales.customers;
+	select 
+	customerid,
+	count(*) totalorders
+	from sales.orders
+	group by customerid
+
+	select *
+	from sales.customers as c
+	left join (
+	select 
+	customerid,
+	count(*) totalorders
+	from sales.orders
+	group by customerid) o
+	on c.customerid=o.customerid
+
+	select c.*,o.totalorders
+	from sales.customers as c
+	left join (
+	select 
+	customerid,
+	count(*) totalorders
+	from sales.orders
+	group by customerid) o
+	on c.customerid=o.customerid
+ 
+Subquery in where clause:
+========================
+Used for complex filtering logic and makes query more flexible and dynamic
+
+Comparison operators
+====================
+Used to filter data by comparing two values
+
+Q)Find the products that have a higher price than the average price of all products
+
+	select 
+	productid,
+	price 
+	from sales.products
+	where price > 
+
+	select avg(price) from sales.products
+
+	select 
+	productid,
+	price 
+	from sales.products
+	where price > (select avg(price) from sales.products)
+
+Logical operators 
+==================
+In operator
+Q) Show the details of orders made by customers in Germany
+	select *
+	from Sales.orders
+	select *
+	from Sales.customers
+
+	select *
+	from Sales.orders
+	select *
+	from Sales.customers where country='Germany'
+
+	select *
+	from Sales.orders
+	where customerid in (1,4)
+	select *
+	from Sales.customers where country='Germany'
+
+	select *
+	from Sales.orders
+	where customerid in 
+	(select customerid
+	from Sales.customers where country='Germany')
+
+Subquery 
+ANY/ALL
+
+Any operator:
+=============
+Checks if a value matches any value in the list
+
+Used to check if a value is true for atleast one of the values in the list
+
+Q)Find female employees whose salaries are greater than the salaries of any male employees
+
+1)	select 
+	employeeid,
+	firstname,
+	gender,
+	salary
+	from sales.employees
+
+2)	select 
+	employeeid,
+	firstname,
+	salary
+	from sales.employees	
+	where gernder='F'
+
+	select 
+	employeeid,
+	firstname,
+	salary
+	from sales.employees	
+	where gernder='M'
+3)	select 
+	employeeid,
+	firstname,
+	salary
+	from sales.employees	
+	where gernder='F'
+	and salary > (	select 	salary from sales.employees where gernder='M')
+
+	Here it will return more than one values so we need to use any operator
+	
+4)	select 
+	employeeid,
+	firstname,
+	salary
+	from sales.employees	
+	where gernder='F'
+	and salary > any(select	salary from sales.employees where gernder='M')
+	
+	select 	firstname, salary from sales.employees where gernder='M'
+
+All operator
+==============
+checks if a values matches all values within a list
+
+Q)Find female employees whose salaries are greater than the salaries of all male employees
+
+	select 
+	employeeid,
+	firstname,
+	salary
+	from sales.employees	
+	where gernder='F'
+	and salary > all(select	salary from sales.employees where gernder='M')
+	
+	select 	firstname, salary from sales.employees where gernder='M'
+
+CTE
+Common Table Expression
+=========================
+
+Temporary, named result set(virtual table) that can be used multiple times within your query to simplify and 
+organise complex query
+
+After standalone CTE 
+Q) Find the total sales per customer
+	select 
+	customerid,
+	sum(sales) as totalsales
+	from sales.orders
+	group by customerid
+I want to write it in CTE bcoz I want to use in future purposes
+
+2)	with cte_totalsales as
+	(
+	select 
+	customerid,
+	sum(sales) as totalsales
+	from sales.orders
+	group by customerid
+	)
+	select *
+	from customers
+
+3)	with cte_totalsales as
+	(
+	select 
+	customerid,
+	sum(sales) as totalsales
+	from sales.orders
+	group by customerid
+	)
+	select 
+	c.customerid,
+	c.firstname,
+	c.lastname,
+	cts. totalsales
+	from customers as c
+	left join cte_totalsales as cts
+	on cts.customerid = c.customerid
+
+CTE Rule: you cannot use order by clause directly with CTE
+
+Multiple standalone cte
+Q)Find total sales per customer
+Q)Find the last order date per customer
+
+step1:	with cte_totalsales as
+	(
+	select 
+	customerid,
+	sum(sales) as totalsales
+	from sales.orders
+	group by customerid
+	)
+step2:	, CTE_Last_Order as 
+	(
+	select customerid,
+	max(orderdate) as lastorder
+ 	from sales.orders
+	group by customerid	
+	)
+mainq	select 
+	c.customerid,
+	c.firstname,
+	c.lastname,
+	cts. totalsales,
+	clo.lastorder
+	from customers as c
+	left join cte_totalsales as cts
+	on cts.customerid = c.customerid
+	left join cte_Last_Order as clo
+	on clo.customerid = c.customerid
+
+	
+Rank customers based on total sales per customer
+
+step3: 
+,CTE_customer_rank as
+(
+	select 
+	customerid,
+	sum(sales) as totalsales
+	from sales.orders
+	group by customerid
+)
+
+we did this already in 1st cte just concentrate on rank
+so 
+,CTE_customer_rank as
+(
+	select 
+	customerid,
+	totalsales,
+	rank() over(order by totalsales dec) as customerrank
+	from cte_totalsales
+)
+
+To execute this comment the main query and execute the above 3 cte's
+now remove the comment for main query and add 
+	ccr.customerrank
+	left join cte_Last_Order as ccr
+	on ccr.customerid = c.customer.d
+
+Step4:
+segment customers based on their total sales
+, cte_customer_segments as 
+(
+select customerid, 
+totalsales,
+case
+	when totalsales>100 then 'High'
+	when totalsales >80 then 'medium'
+	else 'low' 
+end customersegments
+from cte_totalsales
+)
+select * from cte_customer_segments
+
+Recursive CTE's
+================
+
+
+
+
+
